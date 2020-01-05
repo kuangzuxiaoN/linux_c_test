@@ -25,14 +25,24 @@ int main(int argc, char* argv[])
     bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
     //进入监听状态，等待用户发起请求
-    listen(serv_sock, 20);
+    if(listen(serv_sock, 20) != 0)
+	{
+		printf("listen() Error : %s\r\n", stderror(errno));
+		return -1;
+	}
 
 	while(1)
 	{
 		//接收客户端请求
 		struct sockaddr_in clnt_addr;
+		bzero(&clnt_addr, sizeof(clnt_addr));
 		socklen_t clnt_addr_size = sizeof(clnt_addr);
 		int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+		if(clnt_sock < 0)
+		{
+			printf("accept() Error : %s\r\n", stderror(errno));
+			return -1;
+		}
 
 		//向客户端发送数据
 		write(clnt_sock, str, sizeof(str));
